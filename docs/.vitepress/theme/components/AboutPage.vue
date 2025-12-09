@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vitepress'
-import { computed } from 'vue'
+import { computed, onMounted, onBeforeUnmount } from 'vue'
+import { gsap } from 'gsap'
 
 const route = useRoute()
 const currentPath = computed(() => route.path.replace(/\/$/, ''))
@@ -10,6 +11,25 @@ const links = [
   { title: 'Vitepress', path: 'https://vitepress.dev/guide/what-is-vitepress' },
   { title: 'Tailwind CSS', path: 'https://tailwindcss.com/' }
 ]
+
+onMounted(() => {
+  // Animate any element with class 'ball'
+  gsap.to('.ball', {
+    y: 100,
+    duration: 0.8,
+    repeat: -1, // infinite
+    yoyo: true,
+  })
+})
+
+onBeforeUnmount(() => {
+  // cleanup tweens targeting .ball
+  try {
+    gsap.killTweensOf('.ball')
+  } catch (e) {
+    // ignore
+  }
+})
 </script>
 
 <template>
@@ -34,7 +54,9 @@ const links = [
     </aside>
 
     <!-- Markdown Content -->
-    <section class="bg-white w-full lg:w-3/4 p-6 overflow-auto break-words overflow-x-hidden">
+    <section class="bg-white w-full lg:w-3/4 p-6 overflow-auto break-words overflow-x-hidden relative">
+      <!-- animated decorative ball (GSAP targets .ball) -->
+      <div class="ball w-10 h-10 rounded-full bg-indigo-500 absolute top-6 right-6 shadow-lg"></div>
       <Content class="prose prose-base md:prose-lg max-w-none break-words" />
     </section>
   </div>
