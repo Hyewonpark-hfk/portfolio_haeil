@@ -2,7 +2,8 @@
   "scripts": {
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "deploy": "gh-pages -d docs/.vitepress/dist -b gh-pages"
   },
   "dependencies": {
     "@shikijs/vitepress-twoslash": "^3.17.0",
