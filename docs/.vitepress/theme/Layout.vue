@@ -23,14 +23,24 @@ const currentPageComponent = computed(() => {
   if (normalizedPath.value.startsWith('/about')) return AboutPage
   return null
 })
+
+const isHome = computed(() => frontmatter.value.layout === 'home')
 </script>
 
 <template>
   <!-- <HeroSection/> -->
   <div class="min-h-screen font-plexsans bg-stone-200 text-black">
     <NavBar />
-    
-    <main class="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Home page (WorkStack) is full-bleed to allow wide carousel/layout -->
+    <component
+      v-if="isHome"
+      :is="WorkStack"
+      :key="route.path"
+    />
+
+    <!-- Other pages render inside the constrained main container -->
+    <main v-else class="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
       <component
         v-if="currentPageComponent"
         :is="currentPageComponent"
