@@ -1,57 +1,40 @@
 <template>
-  <div
-    ref="containerRef"
-    class="bg-gray-100 mx-auto w-full max-w-6xl p-6 rounded-2xl border border-gray-300"
-  >
-    <a
-      v-for="card in cards"
-      :key="card.slug"
-      :href="withBase(card.route)"
-      class="group flex flex-col sm:flex-row w-full mb-6 rounded-xl overflow-hidden border border-gray-300 bg-white shadow-sm 
-             transition-all duration-300 hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 
-             focus:ring-gray-400"
-    >
-      <!-- Cover Image -->
-      <div
-        class="w-full sm:w-1/5 min-w-[160px] max-w-[240px] h-48 sm:h-auto flex-shrink-0 object-center"
-      >
-        <img
-          v-if="card.image"
-          :src="card.image"
-          alt="cover image"
-          class="w-full h-full p-4 object-cover"
-        />
-        <div
-          v-else
-          class="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500"
-        >
-          No Image
-        </div>
-      </div>
+  <div class="w-full">
+    <!-- Full width Carousel on top -->
+    <Carousel :slides="cardsForCarousel" autoplay :interval="5000" loop class="mb-8" />
 
-      <!-- Text Content -->
-      <div class="flex-1 p-4 sm:p-6 flex flex-col justify-between">
-        <div>
-          <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-            {{ card.title }}
-          </h2>
-          <h3 class="text-sm font-medium text-gray-600 mb-3">
-            {{ card.name }}
-          </h3>
-          <p
-            class="text-gray-700 text-sm leading-snug line-clamp-3 group-hover:line-clamp-none transition-all duration-300"
-          >
-            {{ card.excerpt }}
-          </p>
-        </div>
+    <!-- Full width list (stacked) -->
+    <div ref="containerRef" class="w-full px-4 md:px-8">
+      <div class="space-y-6">
+        <a
+          v-for="card in cards"
+          :key="card.slug"
+          :href="withBase(card.route)"
+          class="group block w-full rounded-xl overflow-hidden border border-gray-300 bg-white shadow-sm 
+                 transition-all duration-300 hover:shadow-lg hover:scale-[1.01] focus:outline-none focus:ring-2 
+                 focus:ring-gray-400"
+        >
+          <div class="flex flex-col md:flex-row w-full">
+            <div class="w-full md:w-1/3 h-56 md:h-auto flex-shrink-0">
+              <img v-if="card.image" :src="card.image" alt="cover" class="w-full h-full object-cover" />
+              <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">No Image</div>
+            </div>
+            <div class="p-4 md:p-6 flex-1">
+              <h2 class="text-lg md:text-2xl font-semibold text-gray-900 mb-1">{{ card.title }}</h2>
+              <h3 class="text-sm text-gray-600 mb-3">{{ card.name }}</h3>
+              <p class="text-gray-700 text-sm leading-relaxed line-clamp-3 group-hover:line-clamp-none transition-all duration-300">{{ card.excerpt }}</p>
+            </div>
+          </div>
+        </a>
       </div>
-    </a>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { withBase } from 'vitepress'
+import Carousel from './Carousel.vue'
 
 type Card = {
   slug: string
@@ -62,10 +45,12 @@ type Card = {
   image: string | null
 }
 
+// @ts-ignore - Vite's import.meta.glob is available at runtime
 const markdownFiles = import.meta.glob('../../../works/**/index.md', {
   as: 'raw',
   eager: true,
 })
+// @ts-ignore - Vite's import.meta.glob is available at runtime
 const imageFiles = import.meta.glob('../../../works/**/cover.{jpg,jpeg,png,webp}', {
   eager: true,
   import: 'default',
@@ -99,10 +84,23 @@ for (const path in markdownFiles) {
     image: imageKey ? (imageFiles[imageKey] as string) : null,
   })
 }
+
+// slides for carousel: map cards to slides and include href via withBase
+const cardsForCarousel = computed(() =>
+  cards.value.map(c => ({
+    title: c.title,
+    excerpt: c.excerpt,
+    image: c.image,
+    href: withBase(c.route),
+  }))
+)
+
+const containerRef = ref<HTMLElement | null>(null)
 </script>
 
 <style scoped>
 .line-clamp-3 {
+  line-clamp: 3;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
